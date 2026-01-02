@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Home Designer</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="navbar">
+    <h2>🏠 AI Home Designer</h2>
+    <a href="/logout">Logout</a>
+</div>
+
+<div class="hero">
+    <h1>Design Your Dream Home with AI</h1>
+    <p>Upload your home photo or enter area size to get instant design & color suggestions.</p>
+</div>
+
+<div class="container">
+
+    <div class="card">
+        <h3>Generate Home Design</h3>
+
+        <form action="/design" method="post" enctype="multipart/form-data">
+            <label>Area (Square Feet)</label>
+            <input type="number" name="area" placeholder="e.g. 1200" required>
+
+            <label>Upload Home Image (Optional)</label>
+            <input type="file" name="image">
+
+            <button type="submit">✨ Generate Design</button>
+        </form>
+    </div>
+
+    {% if layout %}
+    <div class="result">
+        <h2>🏡 Suggested Layout</h2>
+        <p>{{ layout }}</p>
+
+        <h3>🎨 Color Suggestions</h3>
+        <ul>
+            {% for c in colors %}
+            <li>{{ c }}</li>
+            {% endfor %}
+        </ul>
+
+        <p class="ai-note">{{ ai_note }}</p>
+    </div>
+    {% endif %}
+
+</div>
+
+</body>
+</html>
+
