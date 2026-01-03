@@ -1,0 +1,38 @@
+pipeline {
+    agent any
+    stages {
+        stage ('checkout code') {
+            steps{
+                git url: 'https://github.com/ops86199/AI-Home-Designer.git', branch: 'main'
+            }
+        }
+        stage (mvn 'Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        stage (docker image build) {
+            steps {
+                sh 'docker rmi ai-home-designer:latest || true'
+                sh 'docker build -t ai-home-designer:latest .'
+            }
+        }
+        stage (docker image push) {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhubc', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    sh 'echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin'
+                    sh 'docker tag ai-home-designer:latest $DOCKERHUB_USERNAME/ai-home-designer:latest'
+                    sh 'docker push $DOCKERHUB_USERNAME/ai-home-designer:latest'
+                }
+            }
+        }
+        stage ('deploy to k8s cluster') {
+            steps {
+                withKubeConfig([credentialsId: 'kubeconfig-credentials-id']) {
+                    sh 'kubectl apply -f k8s/deployment.yaml'
+                    sh 'kubectl apply -f k8s/service.yaml'
+                }
+            }
+        }
+    }  
+}

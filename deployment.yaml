@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: deployment
+metadata:
+  name: ai-home-designer-deployment 
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-home-designer 
+  template:
+    metadata:
+      labels:
+        app: ai-home-designer 
+    spec:
+      containers:
+      - name: ai-home-designer-container
+        image: ai-home-designer-image:latest
+        ports:
+        - containerPort: 5000

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Home Designer Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="container">
+    <h2>AI Home Designer</h2>
+    <p>Design your dream home!</p>
+
+    <form action="/generate" method="post" enctype="multipart/form-data">
+        <input type="number" name="area" placeholder="Enter area in sq ft" required>
+        <input type="file" name="image" accept="image/*">
+        <button type="submit">Generate Design</button>
+    </form>
+
+    {% if design %}
+    <hr>
+    <h3>AI Design Suggestions:</h3>
+    <p>{{ design }}</p>
+
+    {% if colors %}
+    <h4>Recommended Colors:</h4>
+    <ul>
+        {% for color in colors %}
+        <li style="color: {{color}}">{{color}}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if image_url %}
+    <h4>Uploaded Image Preview:</h4>
+    <img src="{{ image_url }}" alt="Uploaded Image" style="width:300px; border-radius:10px; margin-top:10px;">
+    {% endif %}
+    <hr>
+    {% endif %}
+
+    <a href="/">Logout</a>
+</div>
+</body>
+</html>
