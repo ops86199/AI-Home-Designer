@@ -6,18 +6,18 @@ pipeline {
                 git url: 'https://github.com/ops86199/AI-Home-Designer.git', branch: 'main'
             }
         }
-        stage (mvn 'Build') {
+        stage('Install Dependencies') {
             steps {
-                sh 'mvn clean package'
+                sh 'pip3 install -r requirements.txt || pip3 install flask'
             }
         }
-        stage (docker image build) {
+        stage('docker image build') {
             steps {
                 sh 'docker rmi ai-home-designer:latest || true'
                 sh 'docker build -t ai-home-designer:latest .'
             }
         }
-        stage (docker image push) {
+        stage('docker image push') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhubc', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                     sh 'echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin'
@@ -26,13 +26,13 @@ pipeline {
                 }
             }
         }
-        stage ('deploy to k8s cluster') {
-            steps {
-                withKubeConfig([credentialsId: 'kubeconfig-credentials-id']) {
-                    sh 'kubectl apply -f k8s/deployment.yaml'
-                    sh 'kubectl apply -f k8s/service.yaml'
-                }
-            }
-        }
+        // stage('deploy to k8s cluster') {
+        //     steps {
+        //         withKubeConfig([credentialsId: 'kubeconfig-credentials-id']) {
+        //             sh 'kubectl apply -f k8s/deployment.yaml'
+        //             sh 'kubectl apply -f k8s/service.yaml'
+        //         }
+        //     }
+        // }
     }  
 }
