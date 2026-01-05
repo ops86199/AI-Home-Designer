@@ -7,11 +7,6 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                sh 'pip3 install -r requirements.txt || pip3 install flask'
-            }
-        }
         stage('docker image build') {
             steps {
                 sh 'docker rmi ai-home-designer:latest || true'
