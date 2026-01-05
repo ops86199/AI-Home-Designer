@@ -22,6 +22,14 @@ pipeline {
                 }
             }
         }
+        stage('run container') {
+            steps {
+                 sh '''
+                 docker rm -f con2 || true 
+                 docker run --name con2 -d -p 5000:5000 ops86199/ai-home-designe 
+                 '''
+            }
+        }
         // stage('deploy to k8s cluster') {
         //     steps {
         //         withKubeConfig([credentialsId: 'kubeconfig-credentials-id']) {
