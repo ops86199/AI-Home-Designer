@@ -6,13 +6,6 @@ pipeline {
                 git url: 'https://github.com/ops86199/AI-Home-Designer.git', branch: 'main'
             }
         }
-        stage('Install Python & pip') {
-            steps {
-                sh 'apt update && apt install -y python3 python3-pip'
-            }
-        }
-
-        stage('Install Dependencies') {
             steps {
                 sh 'pip3 install -r requirements.txt || pip3 install flask'
             }
