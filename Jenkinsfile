@@ -25,8 +25,8 @@ pipeline {
         stage('run container') {
             steps {
                  sh '''
-                 docker rm -f con3 || true 
-                 docker run --name con2 -d -p 5000:5000 ops86199/ai-home-designe:latest
+                 docker rm -f con2 || true 
+                 docker run --name con2 -d -p 5000:5000 ops86199/ai-home-designer:latest
                  '''
             }
         }
