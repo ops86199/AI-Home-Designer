@@ -7,8 +7,10 @@ app.secret_key = "secretkey123"
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
 # ---------- DATABASE ----------
+DB_PATH = os.path.join(os.getcwd(), "users.db")
+
 def get_db():
-    return sqlite3.connect("users.db")
+    return sqlite3.connect(DB_PATH)
 
 def init_db():
     conn = get_db()
@@ -50,21 +52,26 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username'].strip()
-        password = request.form['password'].strip()
+        username = request.form.get('username')
+        password = request.form.get('password')
 
-        conn = sqlite3.connect('users.db')
+        conn = get_db()
         cur = conn.cursor()
-        cur.execute(
-            "INSERT INTO users (username, password) VALUES (?, ?)",
-            (username, password)
-        )
-        conn.commit()
-        conn.close()
 
-        return redirect('/')
+        try:
+            cur.execute(
+                "INSERT INTO users (username, password) VALUES (?, ?)",
+                (username, password)
+            )
+            conn.commit()
+        except sqlite3.IntegrityError:
+            return "User already exists"
+        finally:
+            conn.close()
 
-    return render_template("register.html")
+        return redirect('/login')
+
+    return render_template('register.html')
 
 @app.route('/signup', methods=['POST'])
 def signup():
