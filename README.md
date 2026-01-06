@@ -110,6 +110,63 @@ Aspiring DevOps Engineer
 GitHub: [https://github.com/ops86199](https://github.com/ops86199)
 
 ---
+Based on our exact service name, port, and labels, we create a correct Ingress YAML for AWS Load Balancer Controller (ALB).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ai-home-designer-ingress
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+spec:
+  ingressClassName: alb
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: service
+            port:
+              number: 80
+for seeing end point :-- kubectl get ingress
+---------------------------
+Then we install Halm ::-- curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+check version;;- helm version
+✅ STEP 2: Now Install AWS Load Balancer Controller (Correct Way)
+2.1 Associate OIDC (if not done already)
+eksctl utils associate-iam-oidc-provider \
+--region ap-south-1 \
+--cluster my-cluster \
+--approve
+2.2 Create IAM Policy
+curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json
+aws iam create-policy \
+--policy-name AWSLoadBalancerControllerIAMPolicy \
+--policy-document file://iam_policy.json
+2.3 Create IAM Service Account (MOST IMPORTANT)
+eksctl create iamserviceaccount \
+--cluster=my-cluster \
+--namespace=kube-system \
+--name=aws-load-balancer-controller \
+--attach-policy-arn=arn:aws:iam::<YOUR_ACCOUNT_ID>:policy/AWSLoadBalancerControllerIAMPolicy \
+--approve
+2.4 Install Controller Using Helm
+helm repo add eks https://aws.github.io/eks-charts
+helm repo update
+
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+-n kube-system \
+--set clusterName=my-cluster \
+--set serviceAccount.create=false \
+--set serviceAccount.name=aws-load-balancer-controller
+✅ STEP 3: Verify Controller Is Running
+kubectl get pods -n kube-system | grep aws-load-balancer
+✅ STEP 4: Check Ingress Again
+kubectl get ingress
+
 
 ## ⭐ Conclusion
 
